@@ -103,6 +103,8 @@ def update_checkout_shipping_method_if_invalid(
 def check_lines_quantity(variants, quantities, country):
     """Check if stock is sufficient for each line in the list of dicts."""
     for variant, quantity in zip(variants, quantities):
+        if not variant.is_shipping_required():
+            continue
         if quantity < 0:
             raise ValidationError(
                 {
@@ -285,7 +287,8 @@ class CheckoutCreate(ModelMutation, I18nMixin):
         if variants and quantities:
             for variant, quantity in zip(variants, quantities):
                 try:
-                    add_variant_to_checkout(instance, variant, quantity)
+                    add_variant_to_checkout(instance, variant, quantity,
+                                            check_quantity=variant.is_shipping_required())
                 except InsufficientStock as exc:
                     raise ValidationError(
                         f"Insufficient product stock: {exc.item}", code=exc.code
@@ -361,7 +364,7 @@ class CheckoutLinesAdd(BaseMutation):
             for variant, quantity in zip(variants, quantities):
                 try:
                     add_variant_to_checkout(
-                        checkout, variant, quantity, replace=replace
+                        checkout, variant, quantity, replace=replace, check_quantity=variant.is_shipping_required()
                     )
                 except InsufficientStock as exc:
                     raise ValidationError(

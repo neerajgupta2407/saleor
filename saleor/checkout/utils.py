@@ -595,7 +595,8 @@ def create_line_for_order(checkout_line: "CheckoutLine", discounts) -> OrderLine
     variant = checkout_line.variant
     product = variant.product
     country = checkout_line.checkout.get_country()
-    check_stock_quantity(variant, country, quantity)
+    if variant.is_shipping_required():
+        check_stock_quantity(variant, country, quantity)
 
     product_name = str(product)
     variant_name = str(variant)

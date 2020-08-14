@@ -17,6 +17,14 @@ from pytimeparse import parse
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
+try:
+    from decouple import RepositoryEnv
+    file_path = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
+    for k,v in RepositoryEnv("{}/.env".format(file_path)).data.items():
+        # print(k,v)
+        os.environ[k] = v
+except Exception as e:
+    pass
 
 def get_list(text):
     return [item.strip() for item in text.split(",")]
@@ -221,11 +229,13 @@ INSTALLED_APPS = [
     # External apps that need to go before django's
     "storages",
     # Django modules
+    # 'django.contrib.admin',
     "django.contrib.contenttypes",
     "django.contrib.sites",
     "django.contrib.staticfiles",
     "django.contrib.auth",
     "django.contrib.postgres",
+
     # Local apps
     "saleor.plugins",
     "saleor.account",
@@ -477,7 +487,8 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", None)
 
-# Change this value if your application is running behind a proxy,
+# Change this value if your application is running
+# behind a proxy,
 # e.g. HTTP_CF_Connecting_IP for Cloudflare or X_FORWARDED_FOR
 REAL_IP_ENVIRON = os.environ.get("REAL_IP_ENVIRON", "REMOTE_ADDR")
 

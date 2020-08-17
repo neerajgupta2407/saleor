@@ -103,8 +103,6 @@ def update_checkout_shipping_method_if_invalid(
 def check_lines_quantity(variants, quantities, country):
     """Check if stock is sufficient for each line in the list of dicts."""
     for variant, quantity in zip(variants, quantities):
-        if not variant.is_shipping_required():
-            continue
         if quantity < 0:
             raise ValidationError(
                 {
